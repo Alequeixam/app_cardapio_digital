@@ -1,5 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'package:app_cardapio_digital/controller/login_controller.dart';
 import 'package:app_cardapio_digital/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
@@ -14,6 +15,7 @@ class Recuperacao extends StatefulWidget {
 class _RecuperacaoState extends State<Recuperacao> {
   //Identificador do formulário
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -43,6 +45,7 @@ class _RecuperacaoState extends State<Recuperacao> {
                   color: Theme.of(context).colorScheme.tertiary,
                 ),
                 child: TextFormField(
+                  controller: _emailController,
                   decoration: InputDecoration(
                     labelText: 'Digite seu e-mail de cadastro',
                     icon: Icon(Icons.email),
@@ -63,12 +66,15 @@ class _RecuperacaoState extends State<Recuperacao> {
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
+                    LoginController().esqueceuSenha(context, _emailController.text);
                     Navigator.pop(context);
-                    sucesso(context, 'Um e-mail foi enviado para o endereço informado');
-                  }
+                    }
                 },
                 child: Text(
                   "Enviar",
+                  style: TextStyle(
+                    color: Colors.black,
+                  ),
                 ),
               ),
               SizedBox(height: 30),

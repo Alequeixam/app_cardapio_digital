@@ -97,4 +97,11 @@ class LoginController {
   idUsuario() {
     return FirebaseAuth.instance.currentUser!.uid;
   }
+
+  // Nome do usuario logado
+  nomeUsuario() {
+    CollectionReference user = FirebaseFirestore.instance.collection('usuarios')
+      .where('uid', isEqualTo: LoginController().idUsuario()) as CollectionReference<Object?>;
+    
+  }
 }

@@ -3,6 +3,7 @@
 import 'package:app_cardapio_digital/controller/login_controller.dart';
 import 'package:app_cardapio_digital/util/util.dart';
 import 'package:app_cardapio_digital/view/cadastro_view.dart';
+import 'package:app_cardapio_digital/view/homepage_view.dart';
 import 'package:flutter/material.dart';
 import 'package:email_validator/email_validator.dart';
 
@@ -49,7 +50,7 @@ class _LoginViewState extends State<LoginView> {
                 // Logo
                 Icon(
                   Icons.lock_outline_rounded,
-                  size: 72,
+                  size: 92,
                   color: Theme.of(context).colorScheme.inversePrimary,
                 ),
                 SizedBox(height: 18),
@@ -132,7 +133,12 @@ class _LoginViewState extends State<LoginView> {
                   children: [
                     TextButton(
                       onPressed: recuperarSenha,
-                      child: Text('Esqueceu a senha?'),
+                      child: Text(
+                        'Esqueceu a senha?',
+                        style: TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
                     ),
                   ],
                 ),
@@ -142,7 +148,8 @@ class _LoginViewState extends State<LoginView> {
                     if (_formKey.currentState!.validate()) {
                       LoginController().login(context, _emailController.text,
                           _senhaController.text);
-                      Navigator.pushNamed(context, 'listas_view');
+                      Navigator.pushNamed(context, 'homepage');
+                      
                     }
                   },
                   child: Text(
@@ -159,18 +166,18 @@ class _LoginViewState extends State<LoginView> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        Text("Ainda não possui cadastro?"),
+                        Text(
+                          "Ainda não possui cadastro?",
+                          style: TextStyle(color: Colors.black),
+                        ),
                         TextButton(
                           onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => Cadastro()));
+                            Navigator.pushNamed(context, 'cadastro');
                           },
                           child: Text(
                             'Cadastre-se aqui.',
                             style: TextStyle(
-                              color: Color.fromRGBO(70, 70, 70, 1),
+                              color: Colors.black,
                             ),
                           ),
                         ),

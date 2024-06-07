@@ -148,7 +148,6 @@ class _LoginViewState extends State<LoginView> {
                     if (_formKey.currentState!.validate()) {
                       LoginController().login(context, _emailController.text,
                           _senhaController.text);
-                      Navigator.pushNamed(context, 'homepage');
                       
                     }
                   },

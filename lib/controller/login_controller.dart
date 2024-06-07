@@ -39,8 +39,8 @@ class LoginController {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: senha)
         .then((resultado) {
+      Navigator.pushNamed(context, 'homepage');
       sucesso(context, 'Usuário autenticado com sucesso!');
-      Navigator.pushNamed(context, 'principal');
     }).catchError((e) {
       switch (e.code) {
         case 'invalid-credential':

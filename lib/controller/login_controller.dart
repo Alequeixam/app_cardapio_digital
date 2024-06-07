@@ -83,26 +83,4 @@ class LoginController {
     return FirebaseAuth.instance.currentUser!.uid;
   }
 
-  // Nome do usuario logado
-  nomeUsuario() async {
-    final FirebaseFirestore fs = FirebaseFirestore.instance;
-    final CollectionReference dados = fs.collection('usuarios');
-    DocumentSnapshot? documento;
-
-   /* var ref = await dados
-        .withConverter(
-          fromFirestore: Usuario.fromFirestore,
-          toFirestore: (Usuario usuario, _) => usuario.toFirestore(),
-        )
-        .where('uid', isEqualTo: LoginController().idUsuario())
-        .get()
-        .then((value) => documento = value as DocumentSnapshot<Object?>?);*/
-
-    await dados.doc(LoginController().idUsuario()).get()
-    .then((value) => documento = value);
-
-    
-    var user;
-    return documento?.data();
-  }
 }

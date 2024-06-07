@@ -1,13 +1,20 @@
 import 'package:app_cardapio_digital/controller/login_controller.dart';
 import 'package:app_cardapio_digital/util/drawer_tile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class MenuDrawer extends StatelessWidget {
+class MenuDrawer extends StatefulWidget {
   const MenuDrawer({super.key});
 
   @override
+  State<MenuDrawer> createState() => _MenuDrawerState();
+}
+
+class _MenuDrawerState extends State<MenuDrawer> {
+  String? userName;
+  @override
   Widget build(BuildContext context) {
-    var userName = LoginController().nomeUsuario();
+    
 
     return Drawer(
       backgroundColor: Theme.of(context).colorScheme.background,
@@ -15,7 +22,19 @@ class MenuDrawer extends StatelessWidget {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
-            children: [Text('Olá, ${userName}')],
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(6.0),
+                child: FutureBuilder(
+                    future: nomeUsuario(),
+                    builder: ((context, snapshot) {
+                      if (snapshot.connectionState != ConnectionState.done) {
+                        return Text('Carregando...');
+                      }
+                      return Text('Olá, ${userName}');
+                    })),
+              ),
+            ],
           ),
           //LOGO
           Padding(
@@ -57,5 +76,17 @@ class MenuDrawer extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  // Nome do usuario logado
+  nomeUsuario() async {
+    final FirebaseFirestore fs = FirebaseFirestore.instance;
+    final CollectionReference dados = fs.collection('usuarios');
+    var documento;
+
+    await dados.doc(LoginController().idUsuario()).get()
+    .then((value) => userName = value['nome']);
+
+    return documento?.data();
   }
 }

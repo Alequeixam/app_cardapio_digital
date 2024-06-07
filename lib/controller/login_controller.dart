@@ -1,3 +1,4 @@
+import 'package:app_cardapio_digital/model/usuario.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,30 +13,23 @@ class LoginController {
   // Firebase Authentication
   //
   criarConta(context, nome, email, senha) {
+    FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: senha)
+        .then((resultado) {
+      var usr = Usuario('1', email, nome);
 
-    FirebaseAuth.instance.createUserWithEmailAndPassword(
-      email: email, password: senha
-    ).then((resultado){
-      // INFO adicional do usuario
-      FirebaseFirestore.instance.collection('usuarios').add({
-        "uid": resultado.user!.uid.toString(),
-        "nome": nome,
-      });
-
-
-      sucesso(context,'Usuário criado com sucesso!');
+      usr.novoUsuario(context, resultado.user);
+      sucesso(context, 'Usuário criado com sucesso!');
       Navigator.pop(context);
-
-    }).catchError((e){
-      switch(e.code){
+    }).catchError((e) {
+      switch (e.code) {
         case 'email-already-in-use':
-          erro(context,'O email já foi cadastrado.');
+          erro(context, 'O email já foi cadastrado.');
           break;
         default:
-          erro(context,'ERRO: ${e.code.toString()}');
+          erro(context, 'ERRO: ${e.code.toString()}');
       }
     });
-
   }
 
   //
@@ -45,23 +39,19 @@ class LoginController {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: senha)
         .then((resultado) {
-
       sucesso(context, 'Usuário autenticado com sucesso!');
       Navigator.pushNamed(context, 'principal');
-
     }).catchError((e) {
-      
-      switch(e.code){
+      switch (e.code) {
         case 'invalid-credential':
-          erro(context,'Email e/ou senha inválida');
+          erro(context, 'Email e/ou senha inválida');
           break;
         case 'invalid-email':
-          erro(context,'O formato do email é inválido.');
+          erro(context, 'O formato do email é inválido.');
           break;
         default:
           erro(context, 'ERRO: ${e.code.toString()}');
       }
-
     });
   }
 
@@ -69,26 +59,21 @@ class LoginController {
   // ESQUECEU A SENHA
   //
   esqueceuSenha(context, String email) {
-    
     if (email.isNotEmpty) {
       FirebaseAuth.instance.sendPasswordResetEmail(
         email: email,
       );
-      sucesso(context,'Email enviado com sucesso!');
-    }else{
-      erro(context,'Não foi possível enviar o e-mail');
+      sucesso(context, 'Email enviado com sucesso!');
+    } else {
+      erro(context, 'Não foi possível enviar o e-mail');
     }
-
-
   }
 
   //
   // LOGOUT
   //
   logout() {
-
     FirebaseAuth.instance.signOut();
-
   }
 
   //
@@ -99,9 +84,25 @@ class LoginController {
   }
 
   // Nome do usuario logado
-  nomeUsuario() {
-    CollectionReference user = FirebaseFirestore.instance.collection('usuarios')
-      .where('uid', isEqualTo: LoginController().idUsuario()) as CollectionReference<Object?>;
+  nomeUsuario() async {
+    final FirebaseFirestore fs = FirebaseFirestore.instance;
+    final CollectionReference dados = fs.collection('usuarios');
+    DocumentSnapshot? documento;
+
+   /* var ref = await dados
+        .withConverter(
+          fromFirestore: Usuario.fromFirestore,
+          toFirestore: (Usuario usuario, _) => usuario.toFirestore(),
+        )
+        .where('uid', isEqualTo: LoginController().idUsuario())
+        .get()
+        .then((value) => documento = value as DocumentSnapshot<Object?>?);*/
+
+    await dados.doc(LoginController().idUsuario()).get()
+    .then((value) => documento = value);
+
     
+    var user;
+    return documento?.data();
   }
 }

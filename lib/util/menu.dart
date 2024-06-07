@@ -7,11 +7,16 @@ class MenuDrawer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var userName = LoginController().nomeUsuario();
+
     return Drawer(
       backgroundColor: Theme.of(context).colorScheme.background,
       child: Column(
         children: [
-          Row(children: [Text(data)],)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [Text('Olá, ${userName}')],
+          ),
           //LOGO
           Padding(
             padding: EdgeInsets.only(top: 50.0),
@@ -39,15 +44,16 @@ class MenuDrawer extends StatelessWidget {
           const Spacer(),
 
           DrawerTile(
-            texto: "SAIR",
-            icon: Icons.logout_rounded,
-            onTap: () {
-              LoginController().logout();
-              Navigator.pop(context);
-              Navigator.pushNamed(context, 'login');
-            }
+              texto: "SAIR",
+              icon: Icons.logout_rounded,
+              onTap: () {
+                LoginController().logout();
+                Navigator.pop(context);
+                Navigator.pushNamed(context, 'login');
+              }),
+          const SizedBox(
+            height: 15,
           ),
-          const SizedBox(height: 15,),
         ],
       ),
     );

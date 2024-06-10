@@ -10,8 +10,17 @@ dependencies:
   cloud_firestore: ^5.0.0
   firebase_auth: ^5.0.0
   firebase_core: ^3.0.0
+  firebase_storage: ^12.0.0
   flutter:
     sdk: flutter
+  dash_chat_2: ^0.0.21
+  google_fonts: ^6.2.1
+  delightful_toast: ^1.1.0
+  get_it: ^7.7.0
+  image_picker: ^1.1.2
+  path: ^1.9.0
+  mime_type: ^1.0.0
+  file_picker: ^8.0.3
 
 dev_dependencies:
   flutter_test:
@@ -20,6 +29,9 @@ dev_dependencies:
   email_validator: '^2.1.16'
   font_awesome_flutter: ^10.7.0
   url_launcher: 6.2.6
+
+assets:
+  - /assets/
 
 flutter:
   uses-material-design: true

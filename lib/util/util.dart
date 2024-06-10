@@ -1,4 +1,9 @@
+import 'package:app_cardapio_digital/controller/login_controller.dart';
+import 'package:app_cardapio_digital/service/database_service.dart';
+import 'package:app_cardapio_digital/service/media_service.dart';
+import 'package:app_cardapio_digital/service/storage_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 //
 // MENSAGEM DE ERRO
 //
@@ -29,4 +34,15 @@ void sucesso(context, String msg) {
       duration: const Duration(seconds: 2),
     ),
   );
+}
+
+Future<void> registrarServico() async {
+  final GetIt getIt = GetIt.instance;
+  getIt.registerSingleton<LoginController>(LoginController());
+  
+  getIt.registerSingleton<MediaService>(MediaService());
+
+  getIt.registerSingleton<StorageService>(StorageService());
+
+  getIt.registerSingleton<DbService>(DbService());
 }

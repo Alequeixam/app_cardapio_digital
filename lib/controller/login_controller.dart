@@ -7,6 +7,14 @@ import 'package:flutter/material.dart';
 import '../util/util.dart';
 
 class LoginController {
+  User? _user;
+  User? get user {
+    return _user;
+  }
+
+  LoginController() {
+    FirebaseAuth.instance.authStateChanges().listen(stateChangeStreamListener);
+  }
   //
   // CRIAR CONTA
   // Adiciona a conta de um novo usuário no serviço
@@ -16,9 +24,6 @@ class LoginController {
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: senha)
         .then((resultado) {
-      var usr = Usuario('1', email, nome);
-
-      usr.novoUsuario(context, resultado.user);
       sucesso(context, 'Usuário criado com sucesso!');
       Navigator.pop(context);
     }).catchError((e) {
@@ -39,8 +44,9 @@ class LoginController {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: senha)
         .then((resultado) {
-      Navigator.pushNamed(context, 'homepage');
-      sucesso(context, 'Usuário autenticado com sucesso!');
+          _user = resultado.user;
+          Navigator.pushNamed(context, 'homepage');
+          sucesso(context, 'Usuário autenticado com sucesso!');
     }).catchError((e) {
       switch (e.code) {
         case 'invalid-credential':
@@ -74,6 +80,7 @@ class LoginController {
   //
   logout() {
     FirebaseAuth.instance.signOut();
+    
   }
 
   //
@@ -81,6 +88,14 @@ class LoginController {
   //
   idUsuario() {
     return FirebaseAuth.instance.currentUser!.uid;
+  }
+
+  void stateChangeStreamListener(User? user) {
+    if (user !=  null) {
+      _user = user;
+    } else {
+      _user = null;
+    }
   }
 
 }

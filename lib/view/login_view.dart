@@ -69,7 +69,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
                   ),
                   child: TextFormField(
                     controller: _emailController,
@@ -98,7 +98,7 @@ class _LoginViewState extends State<LoginView> {
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
                   ),
                   child: TextFormField(
                     controller: _senhaController,

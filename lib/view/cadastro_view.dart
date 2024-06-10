@@ -1,8 +1,20 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:io' as io;
+import 'dart:io';
+
 import 'package:app_cardapio_digital/controller/login_controller.dart';
+import 'package:app_cardapio_digital/model/usuario.dart';
+import 'package:app_cardapio_digital/service/database_service.dart';
+import 'package:app_cardapio_digital/service/media_service.dart';
+import 'package:app_cardapio_digital/service/storage_service.dart';
+import 'package:app_cardapio_digital/util/consts.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
 class Cadastro extends StatefulWidget {
   const Cadastro({super.key});
@@ -17,6 +29,26 @@ class _CadastroState extends State<Cadastro> {
   final _emailController = TextEditingController();
   final _senhaController1 = TextEditingController();
   final _senhaController2 = TextEditingController();
+
+  PlatformFile? pfFile;
+  File? imagem;
+  Uint8List? _imageBytes;
+  io.File? _imageFile;
+
+  final GetIt _getIt = GetIt.instance;
+  late MediaService _mediaService;
+  late LoginController _loginController;
+  late StorageService _storageService;
+  late DbService _dbService;
+
+  @override
+  void initState() {
+    super.initState();
+    _mediaService = _getIt.get<MediaService>();
+    _storageService = _getIt.get<StorageService>();
+    _loginController = _getIt.get<LoginController>();
+    _dbService = _getIt.get<DbService>();
+  }
 
   bool isVisivel = false;
 
@@ -44,18 +76,20 @@ class _CadastroState extends State<Cadastro> {
                     ),
                   ],
                 ),
-                SizedBox(height: 20),
-                Icon(
-                  Icons.lock,
-                  size: 50,
-                ),
-
-                SizedBox(height: 18),
+                SizedBox(height: 15),
                 Text(
                   "Crie uma conta no app",
                   style: TextStyle(fontSize: 18, color: Colors.grey[550]),
                 ),
 
+                SizedBox(height: 40),
+                pfpSelectionField(),
+                pfFile == null
+                    ? Text(
+                        "Selecione uma foto para seu perfil",
+                        style: TextStyle(fontSize: 12, color: Colors.grey[550]),
+                      )
+                    : Text(""),
                 SizedBox(height: 40),
                 Container(
                   padding: EdgeInsets.symmetric(
@@ -63,7 +97,7 @@ class _CadastroState extends State<Cadastro> {
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
                   ),
                   child: TextFormField(
                     controller: _nomeController,
@@ -89,7 +123,7 @@ class _CadastroState extends State<Cadastro> {
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
                   ),
                   child: TextFormField(
                     controller: _emailController,
@@ -117,7 +151,7 @@ class _CadastroState extends State<Cadastro> {
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
                   ),
                   child: TextFormField(
                     controller: _senhaController1,
@@ -140,8 +174,10 @@ class _CadastroState extends State<Cadastro> {
                     validator: (senha) {
                       if (senha == null || senha.isEmpty) {
                         return 'Por favor, insira uma senha';
-                      } else if (senha.length < 6) {
-                        return 'A senha deve conter no mínimo 6 dígitos!';
+                      } else if (senha.length < 8) {
+                        return 'A senha deve conter no mínimo 8 dígitos!';
+                      } else if (!PASSWORD_VALIDATION_REGEX.hasMatch(senha)) {
+                        return 'Deve conter letras maiusculas e minusculas, e caractere espeial';
                       }
                       return null;
                     },
@@ -157,7 +193,7 @@ class _CadastroState extends State<Cadastro> {
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(6),
-                    color: Theme.of(context).colorScheme.tertiary,
+                    color: Theme.of(context).colorScheme.tertiaryContainer,
                   ),
                   child: TextFormField(
                     controller: _senhaController2,
@@ -192,10 +228,24 @@ class _CadastroState extends State<Cadastro> {
                 ),
                 const SizedBox(height: 60),
                 ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      LoginController().criarConta(context, _nomeController.text,
-                          _emailController.text, _senhaController1.text);
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate() && pfFile != null) {
+                      LoginController().criarConta(
+                          context,
+                          _nomeController.text,
+                          _emailController.text,
+                          _senhaController1.text);
+                      String? pfpURL = await _storageService.uploadPfp(
+                          file: pfFile!, uid: _loginController.user!.uid);
+                      if (pfpURL != null) {
+                        await _dbService.novoUsuario(
+                            context,
+                            Usuario(
+                                _loginController.user!.uid,
+                                _emailController.text,
+                                _nomeController.text,
+                                pfpURL));
+                      }
                     }
                   },
                   child: const Text(
@@ -219,5 +269,38 @@ class _CadastroState extends State<Cadastro> {
         ),
       ),
     ));
+  }
+
+  Widget pfpSelectionField() {
+    return GestureDetector(
+      onTap: pickAndSetImage,
+      child: CircleAvatar(
+        radius: MediaQuery.of(context).size.width * 0.15,
+        backgroundImage: _imageBytes != null
+            ? MemoryImage(_imageBytes!)
+            : _imageFile != null
+                ? FileImage(_imageFile!)
+                : NetworkImage(PLACEHOLDER_PFP) as ImageProvider,
+      ),
+    );
+  }
+
+  Future<void> pickAndSetImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if (result != null && result.files.single != null) {
+      pfFile = result.files.single;
+      if (kIsWeb) {
+        setState(() {
+          _imageBytes = pfFile!.bytes;
+        });
+      } else {
+        setState(() {
+          _imageFile = io.File(pfFile!.path!);
+        });
+      }
+    } else {
+      // Usuário cancelou o picker
+    }
   }
 }

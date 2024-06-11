@@ -57,10 +57,7 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: MenuDrawer(),
       body: _buildUI(),
-      floatingActionButton: FloatingActionButton(
-        onPressed: criarItem,
-        child: Icon(Icons.add),
-      ),
+      
     );
   }
 
@@ -202,7 +199,7 @@ class _HomePageState extends State<HomePage> {
             itemBuilder: (context, index) {
               Usuario usuario = usuarios[index].data();
               return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
                 child: ChatTile(
                     usuario: usuario,
                     onTap: () async {

@@ -1,8 +1,13 @@
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+
 import 'package:app_cardapio_digital/controller/login_controller.dart';
+import 'package:app_cardapio_digital/model/usuario.dart';
 import 'package:app_cardapio_digital/util/widgets/drawer_tile.dart';
+import 'package:app_cardapio_digital/view/usuario_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
+import '../../service/database_service.dart';
 import '../util.dart';
 
 class MenuDrawer extends StatefulWidget {
@@ -13,6 +18,36 @@ class MenuDrawer extends StatefulWidget {
 }
 
 class _MenuDrawerState extends State<MenuDrawer> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String? _pfpURL;
+  String? _nome;
+  String? _email;
+  String? _usrId;
+
+  @override
+  void initState() {
+    super.initState();
+    _usrId = LoginController().idUsuario();
+    _fetchUserProfile();
+  }
+
+  Future<void> _fetchUserProfile() async {
+    try {
+      DocumentSnapshot userDoc =
+          await _firestore.collection('usuarios').doc(_usrId).get();
+      if (userDoc.exists) {
+        setState(() {
+          _pfpURL = userDoc['pfpURL'];
+          _nome = userDoc['nome'];
+          _email = userDoc['email'];
+        });
+      }
+    } catch (e) {
+      print("Não foi possível recuperar dados de: $e");
+    }
+  }
+
+  final DbService _dbService = DbService();
   String? userName;
   @override
   Widget build(BuildContext context) {
@@ -20,62 +55,29 @@ class _MenuDrawerState extends State<MenuDrawer> {
       backgroundColor: Theme.of(context).colorScheme.background,
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Text('Olá, seja bem-vindo!'),
-              ),
-            ],
-          ),
           //LOGO
-          Padding(
-              padding: EdgeInsets.only(top: 50.0),
-              child: Container(
-                height: 170,
-                width: 370,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.secondary,
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    colors: [Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary,]),
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text("Balanço total",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w400,
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.tertiary,
-                            
-                          ),),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              )),
-          //DIVISAO
-          Padding(
-            padding: EdgeInsets.all(25.0),
-            child: Divider(
-              color: Theme.of(context).colorScheme.secondary,
-            ),
+          UserAccountsDrawerHeader(
+            accountName: Text(_nome ?? 'Nome do Usuário'),
+            accountEmail: Text(_email ?? 'email@exemplo.com'),
+            currentAccountPicture: _pfpURL != null
+                ? CircleAvatar(
+                    backgroundImage: NetworkImage(_pfpURL!),
+                  )
+                : CircleAvatar(
+                    child: Icon(Icons.person),
+                  ),
           ),
+          
           DrawerTile(
-            texto: "ADICIONAR ITEM",
+            texto: "Editar nome",
             icon: Icons.add_box_outlined,
-            onTap: () {
+            onTap: () async {
+              final usrId = LoginController().idUsuario();
               Navigator.pop(context);
-              Navigator.pushNamed(context, 'add_itens');
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UsuarioView(userId: usrId)));
             },
           ),
           const Spacer(),

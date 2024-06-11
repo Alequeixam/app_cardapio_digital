@@ -35,6 +35,10 @@ class DbService {
     await _usuariosRef?.doc(userProfile.uid).set(userProfile);
   }
 
+  Future<void> usuarioLogado() async {
+    await _usuariosRef?.doc(LoginController().idUsuario()).get();
+  }
+
   Future<void> criarConta(context, nome, email, senha, pfpURL) {
     return _loginController.criarConta(context, nome, email, senha, pfpURL);
   }

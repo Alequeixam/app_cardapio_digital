@@ -15,9 +15,8 @@ class StorageService {
     required String uid,
   }) async {
     try {
-      Reference fileRef = _firebaseStorage
-          .ref()
-          .child('$uid${p.extension(file.name)}');
+      Reference fileRef =
+          _firebaseStorage.ref().child('$uid${p.extension(file.name)}');
 
       UploadTask task;
 
@@ -74,4 +73,18 @@ class StorageService {
     }
     return null;
   }*/
+
+  Future<String?> uploadImagemChat(
+      {required PlatformFile file, required String chatID}) async {
+    Reference fileRef = _firebaseStorage
+        .ref('chats/$chatID')
+        .child('${DateTime.now().toIso8601String()}${p.extension(file.name)}');
+    
+    UploadTask task = fileRef.putData(file.bytes!);
+    return task.then((p) {
+      if (p.state == TaskState.success) {
+        return fileRef.getDownloadURL();
+      }
+    });
+  }
 }

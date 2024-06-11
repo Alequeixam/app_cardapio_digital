@@ -76,4 +76,9 @@ class DbService {
       )
     });
   }
+
+  Stream<DocumentSnapshot<Chat>> getChatMsgs(String uid1, String uid2) {
+    String chatID = gerarChatID(uid1: uid1, uid2: uid2);
+    return _chatsRef?.doc(chatID).snapshots() as Stream<DocumentSnapshot<Chat>>;
+  }
 }

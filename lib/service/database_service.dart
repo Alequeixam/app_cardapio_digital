@@ -20,7 +20,7 @@ class DbService {
   void _setupCollectionReferences() {
     _usuariosRef = _fbFirestore.collection('usuarios').withConverter<Usuario>(
         fromFirestore: (snapshots, _) => Usuario.fromJson(snapshots.data()!),
-        toFirestore: (userProfile, _) => userProfile.toJsonn());
+        toFirestore: (userProfile, _) => userProfile.toJson());
   }
 
   Future<void> novoUsuario(context, Usuario userProfile) async {
@@ -33,7 +33,7 @@ class DbService {
 
   Stream<QuerySnapshot<Usuario>> getUsuarios() {
     return _usuariosRef
-        ?.where('uid', isNotEqualTo: _loginController.user!.uid)
+        ?.where('uid', isNotEqualTo: LoginController().idUsuario())
         .snapshots() as Stream<QuerySnapshot<Usuario>>;
   }
 }

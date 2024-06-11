@@ -10,7 +10,9 @@ import 'package:app_cardapio_digital/service/media_service.dart';
 import 'package:app_cardapio_digital/service/storage_service.dart';
 import 'package:app_cardapio_digital/util/consts.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +31,7 @@ class _CadastroState extends State<Cadastro> {
   final _emailController = TextEditingController();
   final _senhaController1 = TextEditingController();
   final _senhaController2 = TextEditingController();
+  final FirebaseStorage _firebaseStorage = FirebaseStorage.instance;
 
   PlatformFile? pfFile;
   File? imagem;
@@ -216,8 +219,8 @@ class _CadastroState extends State<Cadastro> {
                     validator: (senha) {
                       if (senha == null || senha.isEmpty) {
                         return 'Por favor, insira uma senha';
-                      } else if (senha.length < 6) {
-                        return 'A senha deve conter no mínimo 6 dígitos!';
+                      } else if (senha.length < 8) {
+                        return 'A senha deve conter no mínimo 8 dígitos!';
                       } else if (_senhaController1.text !=
                           _senhaController2.text) {
                         return 'As senhas devem ser iguais.';
@@ -231,20 +234,27 @@ class _CadastroState extends State<Cadastro> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate() && pfFile != null) {
                       LoginController().criarConta(
-                          context,
-                          _nomeController.text,
-                          _emailController.text,
-                          _senhaController1.text);
-                      String? pfpURL = await _storageService.uploadPfp(
-                          file: pfFile!, uid: _loginController.user!.uid);
+                        context,
+                        _nomeController.text,
+                        _emailController.text,
+                        _senhaController1.text,
+                      );
+                      print('Iniciando o upload...');
+                      String? pfpURL = await uploadPfp(
+                          pfFile!, LoginController().idUsuario());
+                      print('URL de download: $pfpURL');
+                      
                       if (pfpURL != null) {
-                        await _dbService.novoUsuario(
+                        _dbService.novoUsuario(
                             context,
                             Usuario(
                                 _loginController.user!.uid,
                                 _emailController.text,
                                 _nomeController.text,
-                                pfpURL));
+                                pfpURL as String?));
+                      } else {
+                        throw Exception(
+                            "Não foi possível fazer o upload da foto.");
                       }
                     }
                   },
@@ -285,11 +295,43 @@ class _CadastroState extends State<Cadastro> {
     );
   }
 
+  Future<String?> uploadPfp(
+    PlatformFile file,
+    String uid,
+  ) async {
+    try {
+      Reference fileRef =
+          _firebaseStorage.ref().child('$uid${p.extension(file.name)}');
+
+      UploadTask task;
+
+      if (kIsWeb) {
+        // Para web
+        task = fileRef.putData(file.bytes!);
+      } else {
+        // Para mobile
+        task = fileRef.putFile(io.File(file.path!));
+      }
+
+      TaskSnapshot snapshot = await task;
+
+      if (snapshot.state == TaskState.success) {
+        return await fileRef.getDownloadURL();
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+    print("nao fez upload");
+    return null;
+  }
+
   Future<void> pickAndSetImage() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles();
 
     if (result != null && result.files.single != null) {
       pfFile = result.files.single;
+      print('Imagem selecionada: ${pfFile!.name}');
+
       if (kIsWeb) {
         setState(() {
           _imageBytes = pfFile!.bytes;

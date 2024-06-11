@@ -1,9 +1,13 @@
+import 'package:app_cardapio_digital/service/database_service.dart';
 import 'package:app_cardapio_digital/util/widgets/barra_busca.dart';
+import 'package:app_cardapio_digital/util/widgets/chat_tile.dart';
 import 'package:app_cardapio_digital/util/widgets/sliver_appbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 import '../controller/login_controller.dart';
+import '../model/usuario.dart';
 import '../util/util.dart';
 import '../util/widgets/menu.dart';
 
@@ -15,6 +19,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final GetIt getIt = GetIt.instance;
   String? userName;
   final _formKey = GlobalKey<FormState>();
 
@@ -22,6 +27,15 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _dsDespesa = TextEditingController();
   final TextEditingController _precoDespesa = TextEditingController();
   final TextEditingController _tipoDespesa = TextEditingController();
+
+  late DbService _dbService;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _dbService = getIt.get<DbService>();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,12 +55,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       drawer: MenuDrawer(),
-      body: Stack(
-        children: [
-          SizedBox(height: 60,),
-          
-        ],
-      ),
+      body: _buildUI(),
       floatingActionButton: FloatingActionButton(
         onPressed: criarItem,
         child: Icon(Icons.add),
@@ -160,6 +169,42 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         );
+      },
+    );
+  }
+
+  Widget _buildUI() {
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: 15,
+          vertical: 20,
+        ),
+        child: _chatsList(),
+      ),
+    );
+  }
+
+  Widget _chatsList() {
+    return StreamBuilder(
+      stream: _dbService.getUsuarios(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return Center(
+            child: Text("Não foi possivel carregar os usuarios."),
+          );
+        }
+        if (snapshot.hasData && (snapshot.data != null)) {
+          final usuarios = snapshot.data!.docs;
+          return ListView.builder(
+            itemCount: usuarios.length,
+            itemBuilder: (context, index) {
+              Usuario usuario = usuarios[index].data();
+              return ChatTile(usuario: usuario, onTap: (){});
+            },
+          );
+        }
+        return CircularProgressIndicator();
       },
     );
   }

@@ -13,17 +13,23 @@ class LoginController {
   }
 
   LoginController() {
-    FirebaseAuth.instance.authStateChanges().listen(stateChangeStreamListener);
+   // FirebaseAuth.instance.authStateChanges().listen(stateChangeStreamListener);
   }
   //
   // CRIAR CONTA
   // Adiciona a conta de um novo usuário no serviço
   // Firebase Authentication
   //
-  criarConta(context, nome, email, senha) {
+  criarConta(context, nome, email, senha,) {
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: senha)
         .then((resultado) {
+      /* FirebaseFirestore.instance.collection('usuarios').doc(resultado.user?.uid).set({
+        'uid': resultado.user!.uid,
+        'nome': nome,
+        'email': email,
+        //'pfpURL': pfpURL,
+      }); */
       sucesso(context, 'Usuário criado com sucesso!');
       Navigator.pop(context);
     }).catchError((e) {
@@ -44,9 +50,9 @@ class LoginController {
     FirebaseAuth.instance
         .signInWithEmailAndPassword(email: email, password: senha)
         .then((resultado) {
-          _user = resultado.user;
-          Navigator.pushNamed(context, 'homepage');
-          sucesso(context, 'Usuário autenticado com sucesso!');
+      _user = resultado.user;
+      Navigator.pushNamed(context, 'homepage');
+      sucesso(context, 'Usuário autenticado com sucesso!');
     }).catchError((e) {
       switch (e.code) {
         case 'invalid-credential':
@@ -80,7 +86,6 @@ class LoginController {
   //
   logout() {
     FirebaseAuth.instance.signOut();
-    
   }
 
   //
@@ -91,11 +96,10 @@ class LoginController {
   }
 
   void stateChangeStreamListener(User? user) {
-    if (user !=  null) {
+    if (user != null) {
       _user = user;
     } else {
       _user = null;
     }
   }
-
 }

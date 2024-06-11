@@ -1,4 +1,7 @@
+import 'package:app_cardapio_digital/model/chat.dart';
+import 'package:app_cardapio_digital/model/mensagem.dart';
 import 'package:app_cardapio_digital/model/usuario.dart';
+import 'package:app_cardapio_digital/util/util.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get_it/get_it.dart';
 
@@ -11,6 +14,7 @@ class DbService {
   late LoginController _loginController;
 
   CollectionReference? _usuariosRef;
+  CollectionReference? _chatsRef;
 
   DbService() {
     _loginController = getIt.get<LoginController>();
@@ -21,6 +25,10 @@ class DbService {
     _usuariosRef = _fbFirestore.collection('usuarios').withConverter<Usuario>(
         fromFirestore: (snapshots, _) => Usuario.fromJson(snapshots.data()!),
         toFirestore: (userProfile, _) => userProfile.toJson());
+
+    _chatsRef = _fbFirestore.collection('chats').withConverter<Chat>(
+        fromFirestore: (snapshots, _) => Chat.fromJson(snapshots.data()!),
+        toFirestore: (chat, _) => chat.toJson());
   }
 
   Future<void> novoUsuario(context, Usuario userProfile) async {
@@ -35,5 +43,37 @@ class DbService {
     return _usuariosRef
         ?.where('uid', isNotEqualTo: LoginController().idUsuario())
         .snapshots() as Stream<QuerySnapshot<Usuario>>;
+  }
+
+  Future<bool> chatExists(String uid1, String uid2) async {
+    String chatID = gerarChatID(uid1: uid1, uid2: uid2);
+    final resultado = await _chatsRef?.doc(chatID).get();
+    if (resultado != null) {
+      return resultado.exists;
+    }
+    return false;
+  }
+
+  Future<void> criarNovoChat(String uid1, String uid2) async {
+    String chatID = gerarChatID(uid1: uid1, uid2: uid2);
+    final docRef = _chatsRef!.doc(chatID);
+    final chat = Chat(
+      id: chatID,
+      participantes: [uid1, uid2],
+      mensagens: [],
+    );
+    await docRef.set(chat);
+  }
+
+  Future<void> enviarMsg(String uid1, String uid2, Mensagem msg) async {
+    String chatID = gerarChatID(uid1: uid1, uid2: uid2);
+    final docRef = _chatsRef!.doc(chatID);
+    await docRef.update({
+      "mensagens": FieldValue.arrayUnion(
+        [
+          msg.toJson(),
+        ],
+      )
+    });
   }
 }

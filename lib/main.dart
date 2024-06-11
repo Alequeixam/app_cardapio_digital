@@ -1,6 +1,7 @@
 import 'package:app_cardapio_digital/controller/login_controller.dart';
 import 'package:app_cardapio_digital/util/util.dart';
 import 'package:app_cardapio_digital/view/cadastro_view.dart';
+import 'package:app_cardapio_digital/view/chat_view.dart';
 import 'package:app_cardapio_digital/view/homepage_view.dart';
 import 'package:app_cardapio_digital/view/recuperacao_view.dart';
 import 'package:firebase_core/firebase_core.dart';

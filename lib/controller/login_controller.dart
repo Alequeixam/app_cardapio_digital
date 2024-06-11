@@ -98,6 +98,9 @@ class LoginController {
   idUsuario() {
     return FirebaseAuth.instance.currentUser!.uid;
   }
+  nomeUsuario() {
+    return FirebaseAuth.instance.currentUser!.displayName;
+  }
 
   void stateChangeStreamListener(User? user) {
     if (user != null) {

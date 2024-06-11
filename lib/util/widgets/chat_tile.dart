@@ -27,6 +27,7 @@ class ChatTile extends StatelessWidget {
             ? Image.network(
                 usuario.pfpURL!,
                 fit: BoxFit.fill,
+                
               ).image
             : NetworkImage(PLACEHOLDER_PFP),
       ),

@@ -2,6 +2,7 @@ import 'package:app_cardapio_digital/service/database_service.dart';
 import 'package:app_cardapio_digital/util/widgets/barra_busca.dart';
 import 'package:app_cardapio_digital/util/widgets/chat_tile.dart';
 import 'package:app_cardapio_digital/util/widgets/sliver_appbar.dart';
+import 'package:app_cardapio_digital/view/chat_view.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -200,7 +201,31 @@ class _HomePageState extends State<HomePage> {
             itemCount: usuarios.length,
             itemBuilder: (context, index) {
               Usuario usuario = usuarios[index].data();
-              return ChatTile(usuario: usuario, onTap: (){});
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6.0),
+                child: ChatTile(
+                    usuario: usuario,
+                    onTap: () async {
+                      final chatExists = await _dbService.chatExists(
+                        LoginController().idUsuario(),
+                        usuario.uid!,
+                      );
+                      if (!chatExists) {
+                        await _dbService.criarNovoChat(
+                          LoginController().idUsuario(),
+                          usuario.uid!,
+                        );
+                      }
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return ChatView(usuario: usuario);
+                          },
+                        ),
+                      );
+                    }),
+              );
             },
           );
         }

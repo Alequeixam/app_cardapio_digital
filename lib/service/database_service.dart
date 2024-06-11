@@ -28,7 +28,7 @@ class DbService {
   }
 
   Future<void> criarConta(context, nome, email, senha, pfpURL) {
-    return _loginController.criarConta(context, nome, email, senha,);
+    return _loginController.criarConta(context, nome, email, senha, pfpURL);
   }
 
   Stream<QuerySnapshot<Usuario>> getUsuarios() {

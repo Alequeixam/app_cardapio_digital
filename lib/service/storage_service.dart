@@ -32,12 +32,11 @@ class StorageService {
       TaskSnapshot snapshot = await task;
 
       if (snapshot.state == TaskState.success) {
-        return await fileRef.getDownloadURL();
+        return fileRef.getDownloadURL();
       }
     } catch (e) {
       print(e.toString());
     }
-    return null;
   }
 
   Future<void> pickAndUploadFile(

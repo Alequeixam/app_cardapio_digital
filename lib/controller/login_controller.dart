@@ -4,9 +4,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import '../service/storage_service.dart';
 import '../util/util.dart';
 
 class LoginController {
+  final StorageService _storageService = StorageService();
+
   User? _user;
   User? get user {
     return _user;
@@ -20,16 +23,17 @@ class LoginController {
   // Adiciona a conta de um novo usuário no serviço
   // Firebase Authentication
   //
-  criarConta(context, nome, email, senha,) {
+  criarConta(context, nome, email, senha, pfFile) {
     FirebaseAuth.instance
         .createUserWithEmailAndPassword(email: email, password: senha)
-        .then((resultado) {
-      /* FirebaseFirestore.instance.collection('usuarios').doc(resultado.user?.uid).set({
-        'uid': resultado.user!.uid,
+        .then((resultado) async {
+          _user = resultado.user;
+      FirebaseFirestore.instance.collection('usuarios').doc(_user!.uid).set({
+        'uid': _user!.uid,
         'nome': nome,
         'email': email,
-        //'pfpURL': pfpURL,
-      }); */
+        'pfpURL': await _storageService.uploadPfp(file: pfFile, uid: _user!.uid),
+      });
       sucesso(context, 'Usuário criado com sucesso!');
       Navigator.pop(context);
     }).catchError((e) {

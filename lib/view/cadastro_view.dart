@@ -238,12 +238,13 @@ class _CadastroState extends State<Cadastro> {
                         _nomeController.text,
                         _emailController.text,
                         _senhaController1.text,
+                        pfFile
                       );
-                      print('Iniciando o upload...');
-                      String? pfpURL = await uploadPfp(
-                          pfFile!, LoginController().idUsuario());
+                      /* print('Calling uploadPfp with file: ${pfFile!.name}');
+                      String? pfpURL = await _storageService.uploadPfp(
+                          file: pfFile!, uid: _loginController.user!.uid);
                       print('URL de download: $pfpURL');
-                      
+
                       if (pfpURL != null) {
                         _dbService.novoUsuario(
                             context,
@@ -255,7 +256,7 @@ class _CadastroState extends State<Cadastro> {
                       } else {
                         throw Exception(
                             "Não foi possível fazer o upload da foto.");
-                      }
+                      } */
                     }
                   },
                   child: const Text(

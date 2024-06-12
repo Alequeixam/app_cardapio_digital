@@ -15,7 +15,6 @@ class Sobre extends StatelessWidget {
       appBar: AppBar(
         centerTitle: true,
         title: const Text("Sobre este aplicativo"),
-        backgroundColor: Theme.of(context).colorScheme.primary,
       ),
       body: Center(
         child: Padding(

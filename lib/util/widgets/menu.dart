@@ -69,7 +69,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
           ),
           
           DrawerTile(
-            texto: "Editar nome",
+            texto: "Editar dados",
             icon: Icons.add_box_outlined,
             onTap: () async {
               final usrId = LoginController().idUsuario();
@@ -77,7 +77,7 @@ class _MenuDrawerState extends State<MenuDrawer> {
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => UsuarioView(userId: usrId)));
+                      builder: (context) => UsuarioView(userId: usrId,pfpURL: _pfpURL!,)));
             },
           ),
           const Spacer(),

@@ -4,6 +4,7 @@ import 'package:app_cardapio_digital/view/cadastro_view.dart';
 import 'package:app_cardapio_digital/view/chat_view.dart';
 import 'package:app_cardapio_digital/view/homepage_view.dart';
 import 'package:app_cardapio_digital/view/recuperacao_view.dart';
+import 'package:app_cardapio_digital/view/sobre_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -47,6 +48,7 @@ class MainApp extends StatelessWidget {
         'cadastro': (context) => Cadastro(),
         'recuperacao': (context) => Recuperacao(),
         'homepage': (context) => HomePage(),
+        'sobre' :(context) => Sobre(),
     },
 
     );

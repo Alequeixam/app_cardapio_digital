@@ -74,7 +74,7 @@ class _CadastroState extends State<Cadastro> {
                     IconButton(
                       icon: Icon(Icons.info_outline),
                       onPressed: () {
-                        Navigator.pushNamed(context, 'cadastro_view');
+                        Navigator.pushNamed(context, 'sobre');
                       },
                     ),
                   ],
@@ -234,12 +234,11 @@ class _CadastroState extends State<Cadastro> {
                   onPressed: () async {
                     if (_formKey.currentState!.validate() && pfFile != null) {
                       LoginController().criarConta(
-                        context,
-                        _nomeController.text,
-                        _emailController.text,
-                        _senhaController1.text,
-                        pfFile
-                      );
+                          context,
+                          _nomeController.text,
+                          _emailController.text,
+                          _senhaController1.text,
+                          pfFile);
                       /* print('Calling uploadPfp with file: ${pfFile!.name}');
                       String? pfpURL = await _storageService.uploadPfp(
                           file: pfFile!, uid: _loginController.user!.uid);

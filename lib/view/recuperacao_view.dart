@@ -31,6 +31,7 @@ class _RecuperacaoState extends State<Recuperacao> {
           fontSize: 16,
         ),
       ),
+      backgroundColor: Theme.of(context).colorScheme.background,
       content: Container(
         height: 270,
         child: Form(
@@ -42,7 +43,7 @@ class _RecuperacaoState extends State<Recuperacao> {
                 padding: EdgeInsets.symmetric(horizontal: 6),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
-                  color: Theme.of(context).colorScheme.tertiary,
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
                 ),
                 child: TextFormField(
                   controller: _emailController,

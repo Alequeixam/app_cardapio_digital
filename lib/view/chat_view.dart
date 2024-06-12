@@ -183,4 +183,5 @@ class _ChatViewState extends State<ChatView> {
       // Usuário cancelou o picker
     }
   }
+  
 }

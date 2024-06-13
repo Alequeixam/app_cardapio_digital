@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_const_constructors
+
 import 'package:app_cardapio_digital/service/database_service.dart';
 import 'package:app_cardapio_digital/util/widgets/barra_busca.dart';
 import 'package:app_cardapio_digital/util/widgets/chat_tile.dart';
@@ -23,6 +25,8 @@ class _HomePageState extends State<HomePage> {
   final GetIt getIt = GetIt.instance;
   String? userName;
   final _formKey = GlobalKey<FormState>();
+  bool buscaState = false;
+  var textoBusca = "";
 
   final TextEditingController _tituloDespesa = TextEditingController();
   final TextEditingController _dsDespesa = TextEditingController();
@@ -42,8 +46,37 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Mensagens"),
+        title: !buscaState
+            ? Text("Mensagens")
+            : TextField(
+                decoration: InputDecoration(
+                  icon: Icon(Icons.search),
+                  hintText: "busque...",
+                  hintStyle: TextStyle(color: Colors.white),
+                ),
+                onChanged: (texto) {
+                  setState(() {
+                    textoBusca = texto;
+                  });
+                },
+                autofocus: true,
+              ),
         actions: [
+          !buscaState
+              ? IconButton(
+                  onPressed: () {
+                    setState(() {
+                      buscaState = !buscaState;
+                    });
+                  },
+                  icon: Icon(Icons.search))
+              : IconButton(
+                  onPressed: () {
+                    setState(() {
+                      buscaState = !buscaState;
+                    });
+                  },
+                  icon: Icon(Icons.cancel_outlined)),
           IconButton(
             onPressed: () {
               LoginController().logout();
@@ -57,7 +90,6 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: MenuDrawer(),
       body: _buildUI(),
-      
     );
   }
 
@@ -171,6 +203,8 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  buscarItem(texto) {}
+
   Widget _buildUI() {
     return SafeArea(
       child: Padding(
@@ -198,31 +232,61 @@ class _HomePageState extends State<HomePage> {
             itemCount: usuarios.length,
             itemBuilder: (context, index) {
               Usuario usuario = usuarios[index].data();
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: ChatTile(
-                    usuario: usuario,
-                    onTap: () async {
-                      final chatExists = await _dbService.chatExists(
-                        LoginController().idUsuario(),
-                        usuario.uid!,
-                      );
-                      if (!chatExists) {
-                        await _dbService.criarNovoChat(
+
+              if (textoBusca.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: ChatTile(
+                      usuario: usuario,
+                      onTap: () async {
+                        final chatExists = await _dbService.chatExists(
                           LoginController().idUsuario(),
                           usuario.uid!,
                         );
-                      }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) {
-                            return ChatView(usuario: usuario);
-                          },
-                        ),
-                      );
-                    }),
-              );
+                        if (!chatExists) {
+                          await _dbService.criarNovoChat(
+                            LoginController().idUsuario(),
+                            usuario.uid!,
+                          );
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return ChatView(usuario: usuario);
+                            },
+                          ),
+                        );
+                      }),
+                );
+              }
+              if (usuario.nome!.toLowerCase().contains(textoBusca.toLowerCase())) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: ChatTile(
+                      usuario: usuario,
+                      onTap: () async {
+                        final chatExists = await _dbService.chatExists(
+                          LoginController().idUsuario(),
+                          usuario.uid!,
+                        );
+                        if (!chatExists) {
+                          await _dbService.criarNovoChat(
+                            LoginController().idUsuario(),
+                            usuario.uid!,
+                          );
+                        }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return ChatView(usuario: usuario);
+                            },
+                          ),
+                        );
+                      },),
+                );
+              }
             },
           );
         }

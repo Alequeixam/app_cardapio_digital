@@ -19,6 +19,21 @@ void erro(context, String msg) {
     ),
   );
 }
+//
+// MENSAGEM DE ALERTA
+//
+void alerta(context, String msg) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: Colors.yellowAccent.withOpacity(0.4),
+      content: Text(
+        msg,
+        style: const TextStyle(color: Colors.white),
+      ),
+      duration: const Duration(seconds: 2),
+    ),
+  );
+}
 
 //
 // MENSAGEM DE SUCESSO

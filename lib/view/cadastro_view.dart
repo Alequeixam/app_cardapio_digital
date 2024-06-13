@@ -9,6 +9,7 @@ import 'package:app_cardapio_digital/service/database_service.dart';
 import 'package:app_cardapio_digital/service/media_service.dart';
 import 'package:app_cardapio_digital/service/storage_service.dart';
 import 'package:app_cardapio_digital/util/consts.dart';
+import 'package:app_cardapio_digital/util/util.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:path/path.dart' as p;
 import 'package:file_picker/file_picker.dart';
@@ -182,7 +183,7 @@ class _CadastroState extends State<Cadastro> {
                         } else if (senha.length < 8) {
                           return 'A senha deve conter no mínimo 8 dígitos!';
                         } else if (!PASSWORD_VALIDATION_REGEX.hasMatch(senha)) {
-                          return 'Deve conter letras maiusculas e minusculas, e caractere espeial';
+                          return 'Use número, letra maiúscula, minúscula, e caractere espeial';
                         }
                         return null;
                       },
@@ -234,6 +235,9 @@ class _CadastroState extends State<Cadastro> {
                   const SizedBox(height: 60),
                   ElevatedButton(
                     onPressed: () async {
+                      if (pfFile == null) {
+                        alerta(context, "Selecione uma foto de perfil clicando círculo de avatar.");
+                      }
                       if (_formKey.currentState!.validate() && pfFile != null) {
                         LoginController().criarConta(
                             context,

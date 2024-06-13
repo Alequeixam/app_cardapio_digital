@@ -24,6 +24,8 @@ class UsuarioView extends StatefulWidget {
 class _UsuarioViewState extends State<UsuarioView> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final StorageService _storageService = StorageService();
+  final _formKey = GlobalKey<FormState>();
+
   late TextEditingController _nomeController;
   late TextEditingController _emailController;
   //String? pfpURL;
@@ -51,12 +53,19 @@ class _UsuarioViewState extends State<UsuarioView> {
   }
 
   Future<void> _updateUserData() async {
+    if (pfFile != null) {
     await _firestore.collection('usuarios').doc(widget.userId).update({
       'nome': _nomeController.text,
       'email': _emailController.text,
       'pfpURL': await _storageService.updatePfp(
           file: pfFile!, uid: widget.userId, pfpURL: widget.pfpURL),
     });
+    } else {
+      await _firestore.collection('usuarios').doc(widget.userId).update({
+      'nome': _nomeController.text,
+      'email': _emailController.text,
+    });
+    }
     sucesso(context, "Dados atualizados com sucesso!");
     Navigator.pop(context);
   }
@@ -69,64 +78,71 @@ class _UsuarioViewState extends State<UsuarioView> {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            pfpSelectionField(),
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 6,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                color: Theme.of(context).colorScheme.tertiaryContainer,
-              ),
-              child: TextFormField(
-                controller: _nomeController,
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.person),
-                  border: InputBorder.none,
-                  hintText: 'nome completo',
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: [
+              pfpSelectionField(),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 6,
                 ),
-                validator: (nome) {
-                  if (nome == null || nome.isEmpty) {
-                    return 'Por favor, insira um nome';
-                  }
-                  return null;
-                },
-              ),
-            ),
-            SizedBox(height: 8),
-            Container(
-              padding: EdgeInsets.symmetric(
-                horizontal: 6,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(6),
-                color: Theme.of(context).colorScheme.tertiaryContainer,
-              ),
-              child: TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(
-                  icon: Icon(Icons.person),
-                  border: InputBorder.none,
-                  hintText: 'nome@email.com',
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
                 ),
-                validator: (email) {
-                  if (email == null || email.isEmpty) {
-                    return 'Por favor, insira um e-mail';
-                  } else if (!EmailValidator.validate(email)) {
-                    return 'Digite um endereço de e-mail válido!';
-                  }
-                  return null;
-                },
+                child: TextFormField(
+                  controller: _nomeController,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.person),
+                    border: InputBorder.none,
+                    hintText: 'nome completo',
+                  ),
+                  validator: (nome) {
+                    if (nome == null || nome.isEmpty) {
+                      return 'Por favor, insira um nome';
+                    }
+                    return null;
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _updateUserData,
-              child: Text('Salvar'),
-            ),
-          ],
+              SizedBox(height: 8),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 6,
+                ),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(6),
+                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                ),
+                child: TextFormField(
+                  controller: _emailController,
+                  decoration: const InputDecoration(
+                    icon: Icon(Icons.person),
+                    border: InputBorder.none,
+                    hintText: 'nome@email.com',
+                  ),
+                  validator: (email) {
+                    if (email == null || email.isEmpty) {
+                      return 'Por favor, insira um e-mail';
+                    } else if (!EmailValidator.validate(email)) {
+                      return 'Digite um endereço de e-mail válido!';
+                    }
+                    return null;
+                  },
+                ),
+              ),
+              SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _updateUserData();
+                  }
+                },
+                child: Text('Salvar'),
+              ),
+            ],
+          ),
         ),
       ),
     );

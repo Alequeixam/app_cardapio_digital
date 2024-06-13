@@ -5,7 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class Sobre extends StatelessWidget {
-  Sobre({super.key});
+  const Sobre({super.key});
 
   final String _urlGitHub = "https://github.com/Alequeixam/";
 
@@ -24,10 +24,13 @@ class Sobre extends StatelessWidget {
               Text("Chat de mensagens",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
               SizedBox(height: 40),
-              Text(
-                "O aplicativo de Chat é projetado para oferecer uma interface simples e amigável para interações simples entre os usuários cadastrados no sistema.",
-                textAlign: TextAlign.justify,
-                style: TextStyle(fontSize: 17),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  "\tO aplicativo de Chat é projetado para oferecer uma interface simples e amigável para interações básicas entre os usuários cadastrados no sistema.\n\t Ele permite que os usuários conversem enviando mensagens de texto ou fotos.",
+                  textAlign: TextAlign.justify,
+                  style: TextStyle(fontSize: 17),
+                ),
               ),
               Expanded(
                   child: Align(
@@ -44,9 +47,7 @@ class Sobre extends StatelessWidget {
                         SizedBox(width: 5),
                         InkWell(
                           onTap: () => launchUrlString(_urlGitHub),
-                          
                           child: FaIcon(FontAwesomeIcons.github),
-                          
                         ),
                       ],
                     ),

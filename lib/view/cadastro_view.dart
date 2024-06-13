@@ -55,6 +55,7 @@ class _CadastroState extends State<Cadastro> {
   }
 
   bool isVisivel = false;
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -63,226 +64,239 @@ class _CadastroState extends State<Cadastro> {
       child: SafeArea(
         child: Center(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                //mainAxisAlignment: MainAxisAlignment.center,
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: Form(
+                key: _formKey,
+                child: !isLoading ? Column(
+                  //mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.info_outline),
+                          onPressed: () {
+                            Navigator.pushNamed(context, 'sobre');
+                          },
+                        ),
+                      ],
+                    ), 
+                    SizedBox(height: 15),
+                    Text(
+                      "Crie uma conta no app",
+                      style: TextStyle(fontSize: 18, color: Colors.grey[550]),
+                    ),
 
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.info_outline),
-                        onPressed: () {
-                          Navigator.pushNamed(context, 'sobre');
+                    SizedBox(height: 40),
+                    pfpSelectionField(),
+                    pfFile == null
+                        ? Text(
+                            "Selecione uma foto para seu perfil",
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey[550]),
+                          )
+                        : Text(""),
+                    SizedBox(height: 40),
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      ),
+                      child: TextFormField(
+                        controller: _nomeController,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.person),
+                          border: InputBorder.none,
+                          hintText: 'nome completo',
+                        ),
+                        validator: (nome) {
+                          if (nome == null || nome.isEmpty) {
+                            return 'Por favor, insira um nome';
+                          }
+                          return null;
                         },
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 15),
-                  Text(
-                    "Crie uma conta no app",
-                    style: TextStyle(fontSize: 18, color: Colors.grey[550]),
-                  ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Email
+                    //
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      ),
+                      child: TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          icon: Icon(Icons.person),
+                          border: InputBorder.none,
+                          hintText: 'nome@email.com',
+                        ),
+                        validator: (email) {
+                          if (email == null || email.isEmpty) {
+                            return 'Por favor, insira um e-mail';
+                          } else if (!EmailValidator.validate(email)) {
+                            return 'Digite um endereço de e-mail válido!';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Senha
+                    //
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
+                      ),
+                      child: TextFormField(
+                        controller: _senhaController1,
+                        obscureText: !isVisivel,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.lock),
+                          border: InputBorder.none,
+                          hintText: 'senha',
+                          // define como visivel ou nao o campo da senha
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isVisivel = !isVisivel;
+                                });
+                              },
+                              icon: Icon(!isVisivel
+                                  ? Icons.visibility
+                                  : Icons.visibility_off)),
+                        ),
+                        validator: (senha) {
+                          if (senha == null || senha.isEmpty) {
+                            return 'Por favor, insira uma senha';
+                          } else if (senha.length < 8) {
+                            return 'A senha deve conter no mínimo 8 dígitos!';
+                          } else if (!PASSWORD_VALIDATION_REGEX
+                              .hasMatch(senha)) {
+                            return 'Use número, letra maiúscula, minúscula, e caractere espeial';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 10),
 
-                  SizedBox(height: 40),
-                  pfpSelectionField(),
-                  pfFile == null
-                      ? Text(
-                          "Selecione uma foto para seu perfil",
-                          style:
-                              TextStyle(fontSize: 12, color: Colors.grey[550]),
-                        )
-                      : Text(""),
-                  SizedBox(height: 40),
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                    ),
-                    child: TextFormField(
-                      controller: _nomeController,
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.person),
-                        border: InputBorder.none,
-                        hintText: 'nome completo',
+                    // Senha 2
+                    //
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6,
                       ),
-                      validator: (nome) {
-                        if (nome == null || nome.isEmpty) {
-                          return 'Por favor, insira um nome';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Email
-                  //
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                    ),
-                    child: TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        icon: Icon(Icons.person),
-                        border: InputBorder.none,
-                        hintText: 'nome@email.com',
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(6),
+                        color: Theme.of(context).colorScheme.tertiaryContainer,
                       ),
-                      validator: (email) {
-                        if (email == null || email.isEmpty) {
-                          return 'Por favor, insira um e-mail';
-                        } else if (!EmailValidator.validate(email)) {
-                          return 'Digite um endereço de e-mail válido!';
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // Senha
-                  //
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                    ),
-                    child: TextFormField(
-                      controller: _senhaController1,
-                      obscureText: !isVisivel,
-                      decoration: InputDecoration(
-                        icon: Icon(Icons.lock),
-                        border: InputBorder.none,
-                        hintText: 'senha',
-                        // define como visivel ou nao o campo da senha
-                        suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isVisivel = !isVisivel;
-                              });
-                            },
-                            icon: Icon(!isVisivel
-                                ? Icons.visibility
-                                : Icons.visibility_off)),
+                      child: TextFormField(
+                        controller: _senhaController2,
+                        obscureText: !isVisivel,
+                        decoration: InputDecoration(
+                          icon: Icon(Icons.lock),
+                          border: InputBorder.none,
+                          hintText: 'repita a senha',
+                          // define como visivel ou nao o campo da senha
+                          suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isVisivel = !isVisivel;
+                                });
+                              },
+                              icon: Icon(!isVisivel
+                                  ? Icons.visibility
+                                  : Icons.visibility_off)),
+                        ),
+                        validator: (senha) {
+                          if (senha == null || senha.isEmpty) {
+                            return 'Por favor, insira uma senha';
+                          } else if (senha.length < 8) {
+                            return 'A senha deve conter no mínimo 8 dígitos!';
+                          } else if (_senhaController1.text !=
+                              _senhaController2.text) {
+                            return 'As senhas devem ser iguais.';
+                          }
+                          return null;
+                        },
                       ),
-                      validator: (senha) {
-                        if (senha == null || senha.isEmpty) {
-                          return 'Por favor, insira uma senha';
-                        } else if (senha.length < 8) {
-                          return 'A senha deve conter no mínimo 8 dígitos!';
-                        } else if (!PASSWORD_VALIDATION_REGEX.hasMatch(senha)) {
-                          return 'Use número, letra maiúscula, minúscula, e caractere espeial';
-                        }
-                        return null;
-                      },
                     ),
-                  ),
-                  const SizedBox(height: 10),
+                    const SizedBox(height: 60),
+                    ElevatedButton(
+                      onPressed: () async {
+                        setState(() {
+                          isLoading = true;
+                        });
 
-                  // Senha 2
-                  //
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(6),
-                      color: Theme.of(context).colorScheme.tertiaryContainer,
-                    ),
-                    child: TextFormField(
-                      controller: _senhaController2,
-                      obscureText: !isVisivel,
-                      decoration: InputDecoration(
-                        icon: Icon(Icons.lock),
-                        border: InputBorder.none,
-                        hintText: 'repita a senha',
-                        // define como visivel ou nao o campo da senha
-                        suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isVisivel = !isVisivel;
-                              });
-                            },
-                            icon: Icon(!isVisivel
-                                ? Icons.visibility
-                                : Icons.visibility_off)),
-                      ),
-                      validator: (senha) {
-                        if (senha == null || senha.isEmpty) {
-                          return 'Por favor, insira uma senha';
-                        } else if (senha.length < 8) {
-                          return 'A senha deve conter no mínimo 8 dígitos!';
-                        } else if (_senhaController1.text !=
-                            _senhaController2.text) {
-                          return 'As senhas devem ser iguais.';
+                        if (pfFile == null) {
+                          alerta(context,
+                              "Selecione uma foto de perfil clicando círculo de avatar.");
                         }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 60),
-                  ElevatedButton(
-                    onPressed: () async {
-                      if (pfFile == null) {
-                        alerta(context, "Selecione uma foto de perfil clicando círculo de avatar.");
-                      }
-                      if (_formKey.currentState!.validate() && pfFile != null) {
-                        LoginController().criarConta(
-                            context,
-                            _nomeController.text,
-                            _emailController.text,
-                            _senhaController1.text,
-                            pfFile);
-                        /* print('Calling uploadPfp with file: ${pfFile!.name}');
-                        String? pfpURL = await _storageService.uploadPfp(
-                            file: pfFile!, uid: _loginController.user!.uid);
-                        print('URL de download: $pfpURL');
-          
-                        if (pfpURL != null) {
-                          _dbService.novoUsuario(
+                        if (_formKey.currentState!.validate() &&
+                            pfFile != null) {
+                          LoginController().criarConta(
                               context,
-                              Usuario(
-                                  _loginController.user!.uid,
-                                  _emailController.text,
-                                  _nomeController.text,
-                                  pfpURL as String?));
-                        } else {
-                          throw Exception(
-                              "Não foi possível fazer o upload da foto.");
-                        } */
-                      }
-                    },
-                    child: const Text(
-                      "Cadastrar",
-                      style: TextStyle(
-                        color: Color.fromRGBO(70, 70, 70, 1),
-                        fontSize: 18,
+                              _nomeController.text,
+                              _emailController.text,
+                              _senhaController1.text,
+                              pfFile);
+                          /* print('Calling uploadPfp with file: ${pfFile!.name}');
+                                String? pfpURL = await _storageService.uploadPfp(
+                                    file: pfFile!, uid: _loginController.user!.uid);
+                                print('URL de download: $pfpURL');
+                  
+                                if (pfpURL != null) {
+                                  _dbService.novoUsuario(
+                                      context,
+                                      Usuario(
+                                          _loginController.user!.uid,
+                                          _emailController.text,
+                                          _nomeController.text,
+                                          pfpURL as String?));
+                                } else {
+                                  throw Exception(
+                                      "Não foi possível fazer o upload da foto.");
+                                } */
+                        }
+                        setState(() {
+                          isLoading = false;
+                        });
+                      },
+                      child: const Text(
+                        "Cadastrar",
+                        style: TextStyle(
+                          color: Color.fromRGBO(70, 70, 70, 1),
+                          fontSize: 18,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: Text("Cancelar"),
-                  )
-                ],
-              ),
-            ),
-          ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text("Cancelar"),
+                    ),
+                    
+                  ],
+                ) : Expanded(
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      ),
+              )),
         ),
       ),
     ));
